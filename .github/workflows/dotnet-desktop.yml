@@ -2,39 +2,31 @@ name: Build SharpDump
 
 on:
   push:
-    branches: [main]
+    branches: [master]   # repo bạn dùng 'master', không phải 'main'
   workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   build:
     runs-on: windows-latest
 
     steps:
-    - name: Checkout repo
-      uses: actions/checkout@v3
+      - name: Checkout repo
+        uses: actions/checkout@v4   # v3 → v4
 
-    - name: Install .NET Framework 3.5 Developer Pack
-      run: |
-        Invoke-WebRequest -Uri https://download.microsoft.com/download/B/0/D/B0D6DF26-CE4F-4E08-8BFD-4D62B646C8D9/NDP35SP1-KB958484-x86-x64-AllOS-ENU.exe -OutFile NDP35SP1.exe
-        Start-Process -FilePath NDP35SP1.exe -ArgumentList '/quiet','/norestart' -Wait
-      shell: powershell
+      # windows-latest đã có .NET Framework + MSBuild sẵn
+      # KHÔNG cần cài thêm NDP35SP1 hay dotnetfx35
 
-    - name: Install .NET Framework 4.0 targeting pack
-      run: |
-        Invoke-WebRequest -Uri https://download.microsoft.com/download/B/D/7/BD7281AE-7B2F-4F40-BE33-452FDA9E84D1/dotnetfx35.exe -OutFile dotnetfx35.exe
-        Start-Process -FilePath dotnetfx35.exe -ArgumentList '/quiet','/norestart' -Wait
-      shell: powershell
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
 
-    - name: Build with msbuild
-      run: msbuild ./SharpDump/SharpDump.csproj /p:Configuration=Release /p:Platform="Any CPU"
-      shell: cmd
+      - name: Build with MSBuild
+        run: msbuild ./SharpDump/SharpDump.csproj /p:Configuration=Release /p:Platform="Any CPU"
 
-    - name: Upload executable artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: SharpDump-exe
-        path: ./SharpDump/bin/Release/SharpDump.exe
-
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-  Solution_Name: SharpDump.sln
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4   # v3 → v4
+        with:
+          name: SharpDump-Release
+          path: ./SharpDump/bin/Release/SharpDump.exe
