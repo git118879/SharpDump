@@ -20,7 +20,7 @@ jobs:
         uses: microsoft/setup-msbuild@v2
 
       - name: Build with MSBuild
-        run: msbuild ./SharpDump/SharpDump.csproj /p:Configuration=Release /p:Platform="Any CPU"
+        run: msbuild ./SharpDump/SharpDump.csproj /p:Configuration=Release
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
