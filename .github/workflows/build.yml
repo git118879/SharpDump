@@ -1,0 +1,29 @@
+name: Build SharpDump
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Build with MSBuild
+        run: msbuild ./SharpDump/SharpDump.csproj /p:Configuration=Release /p:Platform="Any CPU"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SharpDump-Release
+          path: ./SharpDump/bin/Release/SharpDump.exe
